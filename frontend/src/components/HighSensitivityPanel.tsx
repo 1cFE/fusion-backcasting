@@ -79,7 +79,7 @@ export function HighSensitivityPanel() {
           const def = (defaults[s.key] as number) ?? 0;
           const elast = sensitivity[s.key];
           return (
-            <div key={s.key} className="relative">
+            <div key={s.key}>
               <SliderInput
                 label={s.label}
                 value={val}
@@ -88,23 +88,13 @@ export function HighSensitivityPanel() {
                 max={s.max}
                 step={s.step}
                 format={s.format}
-                description={s.description}
+                description={
+                  elast !== undefined
+                    ? `${s.description} | elasticity: ${elast > 0 ? '+' : ''}${elast.toFixed(2)}`
+                    : s.description
+                }
                 onChange={(v) => setParam(s.key, v)}
               />
-              {elast !== undefined && (
-                <span
-                  className={`absolute top-0 right-0 text-xs font-mono ${
-                    Math.abs(elast) > 0.3
-                      ? 'text-red-400'
-                      : Math.abs(elast) > 0.1
-                        ? 'text-yellow-400'
-                        : 'text-gray-400'
-                  }`}
-                  title={`Elasticity: ${elast > 0 ? '+' : ''}${(elast * 100).toFixed(1)}% LCOE per +100% param`}
-                >
-                  e={elast.toFixed(2)}
-                </span>
-              )}
             </div>
           );
         })}
