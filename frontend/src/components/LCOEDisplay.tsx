@@ -1,83 +1,92 @@
-import { useFusionStore } from '../store';
+import { useDashboardStore } from '../store';
+import { formatDollars, formatPerKw } from '../utils/format';
 
 export function LCOEDisplay() {
-  const { lcoeBreakdown, targetLcoe, setTargetLcoe, feasibility } = useFusionStore();
+  const { result, loading } = useDashboardStore();
 
-  const statusColors = {
-    green: 'text-green-600 dark:text-green-400',
-    yellow: 'text-yellow-600 dark:text-yellow-400',
-    red: 'text-red-600 dark:text-red-400',
-  };
+  if (!result) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="text-center text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
-  const bgColors = {
-    green: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800',
-    yellow: 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800',
-    red: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800',
-  };
+  const { lcoe, overnight_cost, total_capital, costs } = result;
+  const cas90 = costs.CAS90 ?? 0;
+  const cas70 = costs.CAS70 ?? 0;
+  const cas80 = costs.CAS80 ?? 0;
+  const annualTotal = cas90 + cas70 + cas80;
+
+  const capitalPct = annualTotal > 0 ? (cas90 / annualTotal) * 100 : 0;
+  const omPct = annualTotal > 0 ? (cas70 / annualTotal) * 100 : 0;
+  const fuelPct = annualTotal > 0 ? (cas80 / annualTotal) * 100 : 0;
+
+  const lcoeColor =
+    lcoe <= 10
+      ? 'text-green-500'
+      : lcoe <= 30
+        ? 'text-yellow-500'
+        : lcoe <= 60
+          ? 'text-orange-500'
+          : 'text-red-500';
 
   return (
-    <div className={`rounded-xl border-2 p-6 ${bgColors[feasibility.status]}`}>
-      <div className="text-center">
-        <div className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
-          Calculated LCOE
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+      {/* Big LCOE number */}
+      <div className="text-center mb-4">
+        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          Levelized Cost of Electricity
         </div>
-        <div className={`text-6xl font-bold ${statusColors[feasibility.status]}`}>
-          ${lcoeBreakdown.totalLcoe.toFixed(2)}
+        <div
+          className={`text-5xl font-bold ${lcoeColor} ${loading ? 'opacity-50' : ''} transition-all`}
+        >
+          ${lcoe.toFixed(2)}
         </div>
-        <div className="text-xl text-gray-600 dark:text-gray-400 mt-1">/MWh</div>
-
-        <div className="mt-6 flex items-center justify-center gap-4">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Target:</div>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold dark:text-gray-200">${targetLcoe}</span>
-            <span className="text-gray-400">/MWh</span>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm text-gray-500 dark:text-gray-400 mb-2">Adjust Target LCOE</label>
-          <input
-            type="range"
-            min="5"
-            max="50"
-            step="1"
-            value={targetLcoe}
-            onChange={(e) => setTargetLcoe(Number(e.target.value))}
-            className="w-full max-w-xs"
-          />
-          {/* Labels positioned to match their actual slider positions */}
-          <div className="relative max-w-xs mx-auto mt-1 h-4">
-            <span className="absolute text-xs text-gray-400" style={{ left: '0%', transform: 'translateX(0)' }}>$5</span>
-            <span className="absolute text-xs text-gray-400" style={{ left: '11.1%', transform: 'translateX(-50%)' }}>$10</span>
-            <span className="absolute text-xs text-gray-400" style={{ left: '33.3%', transform: 'translateX(-50%)' }}>$20</span>
-            <span className="absolute text-xs text-gray-400" style={{ left: '55.6%', transform: 'translateX(-50%)' }}>$30</span>
-            <span className="absolute text-xs text-gray-400" style={{ left: '100%', transform: 'translateX(-100%)' }}>$50</span>
-          </div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          $/MWh
         </div>
       </div>
 
-      {/* LCOE Breakdown */}
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Cost Breakdown</div>
-        <div className="space-y-2">
-          <BreakdownBar
-            label="Capital"
-            value={lcoeBreakdown.capitalContribution}
-            total={lcoeBreakdown.totalLcoe}
-            color="bg-blue-500"
-          />
-          <BreakdownBar
-            label="Fixed O&M"
-            value={lcoeBreakdown.fixedOmContribution}
-            total={lcoeBreakdown.totalLcoe}
-            color="bg-purple-500"
-          />
-          <BreakdownBar
-            label="Variable O&M"
-            value={lcoeBreakdown.variableOmContribution}
-            total={lcoeBreakdown.totalLcoe}
-            color="bg-orange-500"
-          />
+      {/* LCOE Breakdown bars */}
+      <div className="space-y-2">
+        <BreakdownBar
+          label="Capital (CAS90)"
+          value={cas90}
+          pct={capitalPct}
+          color="bg-blue-500"
+        />
+        <BreakdownBar
+          label="O&M (CAS70)"
+          value={cas70}
+          pct={omPct}
+          color="bg-purple-500"
+        />
+        <BreakdownBar
+          label="Fuel (CAS80)"
+          value={cas80}
+          pct={fuelPct}
+          color="bg-orange-500"
+        />
+      </div>
+
+      {/* Summary stats */}
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <div className="text-gray-500 dark:text-gray-400">
+            Overnight Cost
+          </div>
+          <div className="font-semibold text-gray-900 dark:text-gray-100">
+            {formatPerKw(overnight_cost)}
+          </div>
+        </div>
+        <div>
+          <div className="text-gray-500 dark:text-gray-400">
+            Total Capital
+          </div>
+          <div className="font-semibold text-gray-900 dark:text-gray-100">
+            {formatDollars(total_capital)}
+          </div>
         </div>
       </div>
     </div>
@@ -87,27 +96,27 @@ export function LCOEDisplay() {
 function BreakdownBar({
   label,
   value,
-  total,
+  pct,
   color,
 }: {
   label: string;
   value: number;
-  total: number;
+  pct: number;
   color: string;
 }) {
-  const percentage = total > 0 ? (value / total) * 100 : 0;
-
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-20 text-xs text-gray-600 dark:text-gray-400">{label}</div>
-      <div className="flex-1 h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-        <div
-          className={`h-full ${color} transition-all duration-300`}
-          style={{ width: `${percentage}%` }}
-        />
+    <div>
+      <div className="flex justify-between text-xs mb-0.5">
+        <span className="text-gray-600 dark:text-gray-300">{label}</span>
+        <span className="text-gray-500 dark:text-gray-400">
+          ${value.toFixed(1)}M/yr ({pct.toFixed(0)}%)
+        </span>
       </div>
-      <div className="w-20 text-right text-xs text-gray-600 dark:text-gray-400">
-        ${value.toFixed(2)} ({percentage.toFixed(0)}%)
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div
+          className={`${color} h-2 rounded-full transition-all duration-300`}
+          style={{ width: `${Math.min(100, pct)}%` }}
+        />
       </div>
     </div>
   );
