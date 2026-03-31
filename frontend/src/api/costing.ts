@@ -13,6 +13,15 @@ export async function fetchConcepts(): Promise<{
   return res.json();
 }
 
+export async function fetchPowerCyclePresets(): Promise<
+  Record<string, Record<string, number>>
+> {
+  const res = await fetch(`${API_BASE}/power-cycles`);
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.presets;
+}
+
 export async function fetchDefaults(
   concept: string,
   fuel: string

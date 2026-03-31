@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from backend.services.costing_service import calculate, get_defaults
+from backend.services.costing_service import calculate, get_defaults, get_power_cycle_presets
 from costingfe.types import ConfinementConcept, Fuel
 
 router = APIRouter(prefix="/api/costing", tags=["costing"])
@@ -42,6 +42,12 @@ def list_concepts():
             "pb11": "p-B11",
         },
     }
+
+
+@router.get("/power-cycles")
+def list_power_cycles():
+    """Return power cycle presets (eta_th + BOP coefficients)."""
+    return {"presets": get_power_cycle_presets()}
 
 
 @router.post("/defaults")

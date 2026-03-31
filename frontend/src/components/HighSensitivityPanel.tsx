@@ -1,13 +1,22 @@
 import { useDashboardStore } from '../store';
 import { SliderInput } from './SliderInput';
 import { CONCEPT_TO_FAMILY } from '../types/costing';
+import type { PowerCycle } from '../types/costing';
 import { formatPct, formatMeters, formatMW, formatYears } from '../utils/format';
 
+const CYCLE_LABELS: Record<string, string> = {
+  rankine: 'Rankine',
+  brayton_sco2: 'Brayton sCO\u2082',
+  combined: 'Combined',
+  custom: 'Custom',
+};
+
 export function HighSensitivityPanel() {
-  const { params, defaults, concept, result, setParam } =
+  const { params, defaults, concept, result, powerCycle, setParam, setPowerCycle } =
     useDashboardStore();
   const family = CONCEPT_TO_FAMILY[concept];
   const sensitivity = result?.sensitivity?.engineering ?? {};
+  const isCustomEta = powerCycle === 'custom';
 
   const sliders = [
     {
@@ -22,7 +31,10 @@ export function HighSensitivityPanel() {
       label: 'Thermal Efficiency',
       min: 0.20, max: 0.65, step: 0.01,
       format: formatPct,
-      description: 'Thermal-to-electric conversion',
+      description: isCustomEta
+        ? 'Manual override — not tied to a cycle preset'
+        : `Set by ${CYCLE_LABELS[powerCycle] ?? powerCycle} cycle`,
+      disabled: !isCustomEta,
     },
     {
       key: 'interest_rate',
@@ -73,13 +85,39 @@ export function HighSensitivityPanel() {
           (highest LCOE sensitivity)
         </span>
       </h3>
+
+      {/* Power Cycle Selector */}
+      <div className="mb-4">
+        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+          Power Cycle
+        </label>
+        <div className="flex rounded-md overflow-hidden border border-gray-300 dark:border-gray-600">
+          {(Object.entries(CYCLE_LABELS) as [PowerCycle, string][]).map(
+            ([cycle, label]) => (
+              <button
+                key={cycle}
+                onClick={() => setPowerCycle(cycle)}
+                className={`flex-1 px-2 py-1.5 text-xs font-medium transition-colors ${
+                  powerCycle === cycle
+                    ? 'bg-fusion-500 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
+              >
+                {label}
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
       <div className="space-y-4">
         {sliders.map((s) => {
           const val = (params[s.key] as number) ?? (defaults[s.key] as number) ?? 0;
           const def = (defaults[s.key] as number) ?? 0;
           const elast = sensitivity[s.key];
+          const isDisabled = 'disabled' in s && s.disabled;
           return (
-            <div key={s.key}>
+            <div key={s.key} className={isDisabled ? 'opacity-50' : ''}>
               <SliderInput
                 label={s.label}
                 value={val}
@@ -93,7 +131,9 @@ export function HighSensitivityPanel() {
                     ? `${s.description} | elasticity: ${elast > 0 ? '+' : ''}${elast.toFixed(2)}`
                     : s.description
                 }
-                onChange={(v) => setParam(s.key, v)}
+                onChange={(v) => {
+                  if (!isDisabled) setParam(s.key, v);
+                }}
               />
             </div>
           );

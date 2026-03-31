@@ -5,6 +5,8 @@ export type ConfinementConcept =
 
 export type FuelType = 'dt' | 'dd' | 'dhe3' | 'pb11';
 
+export type PowerCycle = 'rankine' | 'brayton_sco2' | 'combined' | 'custom';
+
 export type ConfinementFamily = 'mfe' | 'ife' | 'mif';
 
 export const CONCEPT_TO_FAMILY: Record<ConfinementConcept, ConfinementFamily> = {

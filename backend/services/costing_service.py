@@ -4,11 +4,12 @@ from costingfe import CostModel, ConfinementConcept, Fuel
 from costingfe.adapter import FusionTeaInput, run_costing
 from costingfe.defaults import (
     CostingConstants,
+    POWER_CYCLE_DEFAULTS,
     cc_float_fields,
     load_costing_constants,
     load_engineering_defaults,
 )
-from costingfe.types import CONCEPT_TO_FAMILY
+from costingfe.types import CONCEPT_TO_FAMILY, PowerCycle
 
 
 def get_concept_family(concept: str) -> str:
@@ -16,6 +17,11 @@ def get_concept_family(concept: str) -> str:
     cc = ConfinementConcept(concept)
     family = CONCEPT_TO_FAMILY[cc]
     return f"{family.value}_{concept}"
+
+
+def get_power_cycle_presets() -> dict[str, dict[str, float]]:
+    """Return power cycle presets (eta_th + BOP coefficients) keyed by cycle name."""
+    return {pc.value: vals for pc, vals in POWER_CYCLE_DEFAULTS.items()}
 
 
 def get_defaults(concept: str, fuel: str) -> dict:
@@ -74,10 +80,12 @@ def calculate(params: dict) -> dict:
     engineering_overrides = {}
     cost_overrides = {}
 
+    power_cycle = params.get("power_cycle", "rankine")
+
     skip_keys = {
         "concept", "fuel", "net_electric_mw", "availability",
         "lifetime_yr", "n_mod", "construction_time_yr",
-        "interest_rate", "inflation_rate", "noak",
+        "interest_rate", "inflation_rate", "noak", "power_cycle",
     }
     cc_fields = set(cc_float_fields())
 
@@ -104,6 +112,7 @@ def calculate(params: dict) -> dict:
         interest_rate=params.get("interest_rate", 0.07),
         inflation_rate=params.get("inflation_rate", 0.02),
         noak=params.get("noak", True),
+        power_cycle=power_cycle,
         overrides=engineering_overrides,
         cost_overrides=cost_overrides,
         costing_overrides=costing_overrides,

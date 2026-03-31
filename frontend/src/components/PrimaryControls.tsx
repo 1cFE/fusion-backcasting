@@ -25,13 +25,19 @@ const FUEL_LABELS: Record<FuelType, string> = {
   pb11: 'p-B11',
 };
 
+const CORE_ACCOUNTS = [
+  'C220101', 'C220102', 'C220103', 'C220104', 'C220105', 'C220106',
+  'C220107', 'C220108', 'C220109', 'C220110', 'C220111', 'C220112',
+];
+
 export function PrimaryControls() {
-  const { concept, fuel, params, setConcept, setFuel, setParam } =
+  const { concept, fuel, params, setConcept, setFuel, setParam, zeroCoreAccounts, restoreCoreAccounts } =
     useDashboardStore();
 
   const netMw = (params.net_electric_mw as number) ?? 1000;
   const noak = (params.noak as boolean) ?? true;
   const nMod = (params.n_mod as number) ?? 1;
+  const coreIsZeroed = CORE_ACCOUNTS.every((k) => params[k] === 0);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4">
@@ -150,6 +156,28 @@ export function PrimaryControls() {
               NOAK
             </button>
           </div>
+        </div>
+
+        {/* Zero / Restore Core */}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Core (CAS22)
+          </label>
+          {coreIsZeroed ? (
+            <button
+              onClick={restoreCoreAccounts}
+              className="px-3 py-1.5 text-sm font-medium rounded-md border border-green-400 dark:border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+            >
+              Restore Core
+            </button>
+          ) : (
+            <button
+              onClick={zeroCoreAccounts}
+              className="px-3 py-1.5 text-sm font-medium rounded-md border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            >
+              Zero Core
+            </button>
+          )}
         </div>
       </div>
     </div>
