@@ -10,13 +10,15 @@ from backend.routes.costing import router as costing_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Warmup: run one calculation to trigger JAX compilation (5-30s)
-    # so the first user request is fast
-    from backend.services.costing_service import calculate, get_defaults
-    print("Warming up JAX (first calculation triggers XLA compilation)...")
-    defaults = get_defaults("tokamak", "dt")
-    calculate(defaults)
-    print("Warmup complete.")
+    # Warmup: run one calculation so the first user request is fast.
+    # Skip in serverless (VERCEL env var is set).
+    import os
+    if not os.environ.get("VERCEL"):
+        from backend.services.costing_service import calculate, get_defaults
+        print("Warming up (first calculation)...")
+        defaults = get_defaults("tokamak", "dt")
+        calculate(defaults)
+        print("Warmup complete.")
     yield
 
 
