@@ -62,7 +62,7 @@ export function CostOverridesPanel() {
                 </span>
                 <input
                   type="number"
-                  placeholder="\u2014"
+                  placeholder="—"
                   value={isOverridden ? overrideValue : ''}
                   onChange={(e) => {
                     const val = e.target.value;

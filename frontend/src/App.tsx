@@ -32,8 +32,16 @@ function App() {
                 <span className="text-fusion-500">LCOE Dashboard</span>
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Powered by 1costingfe &mdash; explore all parameters that drive
-                fusion electricity cost
+                Powered by{' '}
+                <a
+                  href="https://github.com/1cFE/1costingfe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-fusion-500 hover:text-fusion-600 underline"
+                >
+                  1costingfe
+                </a>
+                {' '}&mdash; explore all parameters that drive fusion electricity cost
               </p>
             </div>
             <div className="flex items-center gap-3">

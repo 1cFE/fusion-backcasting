@@ -100,7 +100,7 @@ export function PrimaryControls() {
               type="number"
               value={netMw}
               min={100}
-              max={2000}
+              max={10000}
               step={50}
               onChange={(e) =>
                 setParam('net_electric_mw', Number(e.target.value))
@@ -167,6 +167,7 @@ export function PrimaryControls() {
             <button
               onClick={restoreCoreAccounts}
               className="px-3 py-1.5 text-sm font-medium rounded-md border border-green-400 dark:border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+              title="Restore fusion core costs to calculated values"
             >
               Restore Core
             </button>
@@ -174,6 +175,7 @@ export function PrimaryControls() {
             <button
               onClick={zeroCoreAccounts}
               className="px-3 py-1.5 text-sm font-medium rounded-md border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              title="Set all fusion core costs to zero to find the BOP floor &mdash; the minimum LCOE if the core were free"
             >
               Zero Core
             </button>
