@@ -7,12 +7,12 @@ export type FuelType = 'dt' | 'dd' | 'dhe3' | 'pb11';
 
 export type PowerCycle = 'rankine' | 'brayton_sco2' | 'combined' | 'custom';
 
-export type ConfinementFamily = 'mfe' | 'ife' | 'mif';
+export type ConfinementFamily = 'steady_state' | 'pulsed';
 
 export const CONCEPT_TO_FAMILY: Record<ConfinementConcept, ConfinementFamily> = {
-  tokamak: 'mfe', stellarator: 'mfe', mirror: 'mfe',
-  laser_ife: 'ife', zpinch: 'ife', heavy_ion: 'ife',
-  mag_target: 'mif', plasma_jet: 'mif',
+  tokamak: 'steady_state', stellarator: 'steady_state', mirror: 'steady_state',
+  laser_ife: 'pulsed', zpinch: 'pulsed', heavy_ion: 'pulsed',
+  mag_target: 'pulsed', plasma_jet: 'pulsed',
 };
 
 export interface PowerTable {
@@ -23,6 +23,10 @@ export interface PowerTable {
   q_sci: number;
   q_eng: number;
   rec_frac: number;
+  e_driver_mj?: number;
+  e_stored_mj?: number;
+  f_rep?: number;
+  f_ch?: number;
 }
 
 export interface CostBreakdown {

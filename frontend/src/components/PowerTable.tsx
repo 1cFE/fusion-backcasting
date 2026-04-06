@@ -13,6 +13,9 @@ export function PowerTable() {
     { label: 'Scientific Q', value: pt.q_sci, unit: '' },
     { label: 'Engineering Q', value: pt.q_eng, unit: '' },
     { label: 'Recirc. Fraction', value: pt.rec_frac * 100, unit: '%' },
+    ...(pt.e_stored_mj ? [{ label: 'Stored Energy', value: pt.e_stored_mj, unit: 'MJ' }] : []),
+    ...(pt.f_rep ? [{ label: 'Rep Rate', value: pt.f_rep, unit: 'Hz' }] : []),
+    ...(pt.f_ch ? [{ label: 'Charging Fraction', value: pt.f_ch * 100, unit: '%' }] : []),
   ];
 
   return (

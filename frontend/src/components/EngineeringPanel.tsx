@@ -29,22 +29,17 @@ const PARASITIC_COMMON: ParamDef[] = [
   { key: 'p_cryo', label: 'Cryogenics', min: 0.1, max: 5, step: 0.1, format: formatMW },
 ];
 
-const PARASITIC_MFE: ParamDef[] = [
+const PARASITIC_STEADY_STATE: ParamDef[] = [
   { key: 'p_coils', label: 'Coil Power', min: 0.5, max: 20, step: 0.5, format: formatMW },
   { key: 'p_cool', label: 'Cooling Power', min: 5, max: 50, step: 1, format: formatMW },
 ];
 
-const PARASITIC_IFE: ParamDef[] = [
-  { key: 'p_implosion', label: 'Implosion Driver', min: 1, max: 50, step: 1, format: formatMW },
-  { key: 'p_ignition', label: 'Ignition Laser', min: 0.01, max: 5, step: 0.01, format: formatMW },
-  { key: 'eta_pin1', label: 'Driver 1 Efficiency', min: 0.05, max: 0.50, step: 0.01, format: formatPct },
-  { key: 'eta_pin2', label: 'Driver 2 Efficiency', min: 0.05, max: 0.50, step: 0.01, format: formatPct },
-  { key: 'p_target', label: 'Target Factory', min: 0.1, max: 10, step: 0.1, format: formatMW },
-];
-
-const PARASITIC_MIF: ParamDef[] = [
-  { key: 'p_driver', label: 'Driver Power', min: 1, max: 100, step: 1, format: formatMW },
-  { key: 'p_target', label: 'Target Factory', min: 0.1, max: 10, step: 0.1, format: formatMW },
+const PARASITIC_PULSED: ParamDef[] = [
+  { key: 'e_driver_mj', label: 'Driver Energy/Pulse', min: 0.5, max: 200, step: 0.5, format: (v) => `${v.toFixed(1)} MJ` },
+  { key: 'f_rep', label: 'Rep Rate', min: 0.1, max: 20, step: 0.1, format: (v) => `${v.toFixed(1)} Hz` },
+  { key: 'eta_pin', label: 'Driver Efficiency', min: 0.05, max: 0.98, step: 0.01, format: formatPct },
+  { key: 'f_rad', label: 'Radiation Fraction', min: 0.01, max: 0.30, step: 0.01, format: formatPct },
+  { key: 'p_target', label: 'Target Factory', min: 0, max: 10, step: 0.1, format: formatMW },
   { key: 'p_coils', label: 'Coil Power', min: 0, max: 10, step: 0.5, format: formatMW },
 ];
 
@@ -67,12 +62,15 @@ export function EngineeringPanel() {
   const family = CONCEPT_TO_FAMILY[concept];
 
   const parasiticFamily =
-    family === 'ife' ? PARASITIC_IFE
-    : family === 'mif' ? PARASITIC_MIF
-    : PARASITIC_MFE;
+    family === 'pulsed' ? PARASITIC_PULSED : PARASITIC_STEADY_STATE;
+
+  const STEADY_STATE_ONLY_KEYS = new Set(['eta_de', 'f_dec', 'eta_p']);
+  const filteredPowerBalance = family === 'pulsed'
+    ? POWER_BALANCE.filter((p) => !STEADY_STATE_ONLY_KEYS.has(p.key))
+    : POWER_BALANCE;
 
   const sections = [
-    { title: 'Power Balance', params: POWER_BALANCE },
+    { title: 'Power Balance', params: filteredPowerBalance },
     { title: 'Parasitic Power', params: [...PARASITIC_COMMON, ...parasiticFamily] },
     { title: 'Geometry', params: GEOMETRY },
     { title: 'Financial', params: FINANCIAL },

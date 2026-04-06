@@ -13,9 +13,8 @@ const CONCEPT_LABELS: Record<ConfinementConcept, string> = {
 };
 
 const CONCEPT_GROUPS = {
-  MFE: ['tokamak', 'stellarator', 'mirror'] as ConfinementConcept[],
-  IFE: ['laser_ife', 'zpinch', 'heavy_ion'] as ConfinementConcept[],
-  MIF: ['mag_target', 'plasma_jet'] as ConfinementConcept[],
+  'Steady State': ['tokamak', 'stellarator', 'mirror'] as ConfinementConcept[],
+  'Pulsed': ['laser_ife', 'zpinch', 'heavy_ion', 'mag_target', 'plasma_jet'] as ConfinementConcept[],
 };
 
 const FUEL_LABELS: Record<FuelType, string> = {

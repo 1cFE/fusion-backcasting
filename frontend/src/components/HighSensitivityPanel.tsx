@@ -50,7 +50,7 @@ export function HighSensitivityPanel() {
       format: formatMeters,
       description: 'First wall + blanket radial build',
     },
-    ...(family === 'mfe'
+    ...(family === 'steady_state'
       ? [
           {
             key: 'p_input',
@@ -65,6 +65,24 @@ export function HighSensitivityPanel() {
             min: 0.10, max: 0.90, step: 0.05,
             format: formatPct,
             description: 'Heating system wall-plug efficiency',
+          },
+        ]
+      : []),
+    ...(family === 'pulsed'
+      ? [
+          {
+            key: 'e_driver_mj',
+            label: 'Driver Energy',
+            min: 0.5, max: 200, step: 0.5,
+            format: (v: number) => `${v.toFixed(1)} MJ`,
+            description: 'Energy per pulse delivered to plasma',
+          },
+          {
+            key: 'eta_pin',
+            label: 'Driver Efficiency',
+            min: 0.05, max: 0.98, step: 0.01,
+            format: formatPct,
+            description: 'Driver wall-plug efficiency',
           },
         ]
       : []),
