@@ -28,20 +28,18 @@ export function HighSensitivityPanel() {
       format: formatPct,
       description: 'Capacity factor',
     },
-    ...(!isDEC
-      ? [
-          {
-            key: 'eta_th',
-            label: 'Thermal Efficiency',
-            min: 0.20, max: 0.65, step: 0.01,
-            format: formatPct,
-            description: isCustomEta
-              ? 'Manual override — not tied to a cycle preset'
-              : `Set by ${CYCLE_LABELS[powerCycle] ?? powerCycle} cycle`,
-            disabled: !isCustomEta,
-          },
-        ]
-      : []),
+    {
+      key: 'eta_th',
+      label: isDEC ? 'Thermal Efficiency (parallel BOP)' : 'Thermal Efficiency',
+      min: 0.0, max: 0.65, step: 0.01,
+      format: formatPct,
+      description: isDEC
+        ? 'Set to 0 for pure DEC; raise for parallel thermal cycle on neutron heat'
+        : isCustomEta
+          ? 'Manual override — not tied to a cycle preset'
+          : `Set by ${CYCLE_LABELS[powerCycle] ?? powerCycle} cycle`,
+      disabled: !isDEC && !isCustomEta,
+    },
     {
       key: 'interest_rate',
       label: 'Interest Rate',
@@ -152,8 +150,8 @@ export function HighSensitivityPanel() {
         </span>
       </h3>
 
-      {/* Power Cycle Selector — hidden for inductive DEC (no thermal cycle) */}
-      {!isDEC && <div className="mb-4">
+      {/* Power Cycle Selector */}
+      <div className="mb-4">
         <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
           Power Cycle
         </label>
@@ -174,7 +172,7 @@ export function HighSensitivityPanel() {
             )
           )}
         </div>
-      </div>}
+      </div>
 
       <div className="space-y-4">
         {sliders.map((s) => {
