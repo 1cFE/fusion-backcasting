@@ -59,7 +59,7 @@ export function SliderInput({
           )}
         </div>
       </div>
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <input
           type="range"
           min={min}
