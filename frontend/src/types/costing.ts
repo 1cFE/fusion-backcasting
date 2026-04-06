@@ -1,7 +1,7 @@
 export type ConfinementConcept =
   | 'tokamak' | 'stellarator' | 'mirror'
   | 'laser_ife' | 'zpinch' | 'heavy_ion'
-  | 'mag_target' | 'plasma_jet';
+  | 'mag_target' | 'plasma_jet' | 'pulsed_frc';
 
 export type FuelType = 'dt' | 'dd' | 'dhe3' | 'pb11';
 
@@ -14,7 +14,7 @@ export type PulsedConversion = 'thermal' | 'inductive_dec';
 export const CONCEPT_TO_FAMILY: Record<ConfinementConcept, ConfinementFamily> = {
   tokamak: 'steady_state', stellarator: 'steady_state', mirror: 'steady_state',
   laser_ife: 'pulsed', zpinch: 'pulsed', heavy_ion: 'pulsed',
-  mag_target: 'pulsed', plasma_jet: 'pulsed',
+  mag_target: 'pulsed', plasma_jet: 'pulsed', pulsed_frc: 'pulsed',
 };
 
 export interface PowerTable {

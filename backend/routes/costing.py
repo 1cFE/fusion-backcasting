@@ -34,6 +34,7 @@ def list_concepts():
             "heavy_ion": "Heavy Ion",
             "mag_target": "Mag. Target",
             "plasma_jet": "Plasma Jet",
+            "pulsed_frc": "Pulsed FRC",
         },
         "fuel_labels": {
             "dt": "D-T",
