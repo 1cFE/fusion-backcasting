@@ -79,6 +79,13 @@ export function HighSensitivityPanel() {
             description: 'Energy per pulse delivered to plasma',
           },
           {
+            key: 'f_rep',
+            label: 'Rep Rate',
+            min: 0.1, max: 20, step: 0.1,
+            format: (v: number) => `${v.toFixed(1)} Hz`,
+            description: 'Pulse repetition rate',
+          },
+          {
             key: 'eta_pin',
             label: 'Driver Efficiency',
             min: 0.05, max: 0.98, step: 0.01,
