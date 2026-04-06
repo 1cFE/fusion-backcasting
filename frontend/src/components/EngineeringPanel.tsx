@@ -43,6 +43,11 @@ const PARASITIC_PULSED: ParamDef[] = [
   { key: 'p_coils', label: 'Coil Power', min: 0, max: 10, step: 0.5, format: formatMW },
 ];
 
+const DEC_PARAMS: ParamDef[] = [
+  { key: 'eta_dec', label: 'DEC Efficiency', min: 0.50, max: 0.98, step: 0.01, format: formatPct },
+  { key: 'f_pdv', label: 'PdV Work Fraction', min: 0.50, max: 0.95, step: 0.01, format: formatPct },
+];
+
 const GEOMETRY: ParamDef[] = [
   { key: 'R0', label: 'Major Radius', min: 1, max: 10, step: 0.1, format: formatMeters },
   { key: 'plasma_t', label: 'Plasma Size', min: 0.5, max: 5, step: 0.1, format: formatMeters },
@@ -60,9 +65,13 @@ const FINANCIAL: ParamDef[] = [
 export function EngineeringPanel() {
   const { params, defaults, concept, setParam } = useDashboardStore();
   const family = CONCEPT_TO_FAMILY[concept];
+  const pulsedConversion = params.pulsed_conversion as string;
+  const isDEC = family === 'pulsed' && pulsedConversion === 'inductive_dec';
 
   const parasiticFamily =
-    family === 'pulsed' ? PARASITIC_PULSED : PARASITIC_STEADY_STATE;
+    family === 'pulsed'
+      ? [...PARASITIC_PULSED, ...(isDEC ? DEC_PARAMS : [])]
+      : PARASITIC_STEADY_STATE;
 
   const STEADY_STATE_ONLY_KEYS = new Set(['eta_de', 'f_dec', 'eta_p']);
   const filteredPowerBalance = family === 'pulsed'

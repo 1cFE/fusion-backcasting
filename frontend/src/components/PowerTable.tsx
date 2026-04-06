@@ -1,13 +1,17 @@
 import { useDashboardStore } from '../store';
 
 export function PowerTable() {
-  const { result } = useDashboardStore();
+  const { result, params } = useDashboardStore();
   if (!result) return null;
 
   const pt = result.power_table;
+  const pulsedConversion = params.pulsed_conversion as string;
   const rows = [
     { label: 'Fusion Power', value: pt.p_fus, unit: 'MW' },
     { label: 'Thermal Power', value: pt.p_th, unit: 'MW' },
+    ...(pt.p_dee && pulsedConversion === 'inductive_dec'
+      ? [{ label: 'DEC Electric', value: pt.p_dee, unit: 'MW' }]
+      : []),
     { label: 'Gross Electric', value: pt.p_et, unit: 'MW' },
     { label: 'Net Electric', value: pt.p_net, unit: 'MW' },
     { label: 'Scientific Q', value: pt.q_sci, unit: '' },

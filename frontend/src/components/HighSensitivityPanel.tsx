@@ -15,6 +15,7 @@ export function HighSensitivityPanel() {
   const { params, defaults, concept, result, powerCycle, setParam, setPowerCycle } =
     useDashboardStore();
   const family = CONCEPT_TO_FAMILY[concept];
+  const pulsedConversion = params.pulsed_conversion as string;
   const sensitivity = result?.sensitivity?.engineering ?? {};
   const isCustomEta = powerCycle === 'custom';
 
@@ -83,6 +84,17 @@ export function HighSensitivityPanel() {
             min: 0.05, max: 0.98, step: 0.01,
             format: formatPct,
             description: 'Driver wall-plug efficiency',
+          },
+        ]
+      : []),
+    ...(family === 'pulsed' && pulsedConversion === 'inductive_dec'
+      ? [
+          {
+            key: 'eta_dec',
+            label: 'DEC Efficiency',
+            min: 0.50, max: 0.98, step: 0.01,
+            format: formatPct,
+            description: 'Inductive energy recovery efficiency',
           },
         ]
       : []),

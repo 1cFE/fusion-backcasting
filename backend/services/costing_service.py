@@ -9,7 +9,12 @@ from costingfe.defaults import (
     load_costing_constants,
     load_engineering_defaults,
 )
-from costingfe.types import CONCEPT_TO_FAMILY, PowerCycle
+from costingfe.types import (
+    CONCEPT_DEFAULT_CONVERSION,
+    CONCEPT_TO_FAMILY,
+    ConfinementConcept as CC,
+    PowerCycle,
+)
 
 
 def get_concept_family(concept: str) -> str:
@@ -58,6 +63,12 @@ def get_defaults(concept: str, fuel: str) -> dict:
     for name in cc_float_fields():
         defaults[f"cc_{name}"] = getattr(cc, name)
 
+    # Pulsed conversion default
+    cc_enum = CC(concept)
+    default_conv = CONCEPT_DEFAULT_CONVERSION.get(cc_enum)
+    if default_conv:
+        defaults["pulsed_conversion"] = default_conv.value
+
     return defaults
 
 
@@ -86,6 +97,7 @@ def calculate(params: dict) -> dict:
         "concept", "fuel", "net_electric_mw", "availability",
         "lifetime_yr", "n_mod", "construction_time_yr",
         "interest_rate", "inflation_rate", "noak", "power_cycle",
+        "pulsed_conversion",
     }
     cc_fields = set(cc_float_fields())
 
@@ -113,6 +125,7 @@ def calculate(params: dict) -> dict:
         inflation_rate=params.get("inflation_rate", 0.02),
         noak=params.get("noak", True),
         power_cycle=power_cycle,
+        pulsed_conversion=params.get("pulsed_conversion", ""),
         overrides=engineering_overrides,
         cost_overrides=cost_overrides,
         costing_overrides=costing_overrides,

@@ -1,4 +1,5 @@
 import { useDashboardStore } from '../store';
+import { CONCEPT_TO_FAMILY } from '../types/costing';
 import type { ConfinementConcept, FuelType } from '../types/costing';
 
 const CONCEPT_LABELS: Record<ConfinementConcept, string> = {
@@ -33,6 +34,8 @@ export function PrimaryControls() {
   const { concept, fuel, params, setConcept, setFuel, setParam, zeroCoreAccounts, restoreCoreAccounts } =
     useDashboardStore();
 
+  const family = CONCEPT_TO_FAMILY[concept];
+  const pulsedConversion = (params.pulsed_conversion as string) ?? 'thermal';
   const netMw = (params.net_electric_mw as number) ?? 1000;
   const noak = (params.noak as boolean) ?? true;
   const nMod = (params.n_mod as number) ?? 1;
@@ -64,6 +67,37 @@ export function PrimaryControls() {
             ))}
           </select>
         </div>
+
+        {/* Conversion mode (pulsed only) */}
+        {family === 'pulsed' && (
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Conversion
+            </label>
+            <div className="flex rounded-md overflow-hidden border border-gray-300 dark:border-gray-600">
+              <button
+                onClick={() => setParam('pulsed_conversion', 'thermal')}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  pulsedConversion !== 'inductive_dec'
+                    ? 'bg-fusion-500 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
+              >
+                Thermal
+              </button>
+              <button
+                onClick={() => setParam('pulsed_conversion', 'inductive_dec')}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  pulsedConversion === 'inductive_dec'
+                    ? 'bg-fusion-500 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
+              >
+                Inductive DEC
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Fuel selector */}
         <div>

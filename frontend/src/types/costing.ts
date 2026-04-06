@@ -9,6 +9,8 @@ export type PowerCycle = 'rankine' | 'brayton_sco2' | 'combined' | 'custom';
 
 export type ConfinementFamily = 'steady_state' | 'pulsed';
 
+export type PulsedConversion = 'thermal' | 'inductive_dec';
+
 export const CONCEPT_TO_FAMILY: Record<ConfinementConcept, ConfinementFamily> = {
   tokamak: 'steady_state', stellarator: 'steady_state', mirror: 'steady_state',
   laser_ife: 'pulsed', zpinch: 'pulsed', heavy_ion: 'pulsed',
@@ -27,6 +29,7 @@ export interface PowerTable {
   e_stored_mj?: number;
   f_rep?: number;
   f_ch?: number;
+  p_dee?: number;
 }
 
 export interface CostBreakdown {
