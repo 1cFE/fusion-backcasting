@@ -1,0 +1,62 @@
+# Default engineering parameters for MFE mirror
+# Mirrors: simple geometry, high beta, end-loss DEC opportunity
+
+p_input: 40.0       # Heating power [MW] (NBI-dominated)
+
+# Heating mix for CAS22 costing (must sum to p_input)
+p_nbi: 40.0         # NBI heating [MW] (primary heating for mirror)
+p_ecrh: 0.0         # ECRH heating [MW]
+p_icrf: 0.0         # ICRF heating [MW]
+p_lhcd: 0.0         # LHCD heating [MW]
+
+mn: 1.1             # Neutron energy multiplier
+eta_p: 0.5          # Pumping efficiency
+eta_pin: 0.5        # Heating system wall-plug efficiency
+eta_de: 0.60        # DEC efficiency (end-plug DEC)
+f_sub: 0.03         # Subsystem power fraction
+f_dec: 0.3          # DEC fraction (significant end-loss recovery)
+p_coils: 5.0        # Coil power [MW] (solenoid + mirror coils)
+p_cool: 20.0        # Cooling power [MW]
+p_pump: 1.5         # Pumping power [MW]
+p_trit: 10.0        # Tritium processing power [MW]
+p_house: 4.0        # Housekeeping power [MW]
+p_cryo: 1.0         # Cryogenic power [MW]
+
+# Coil parameters
+b_max: 12.0          # Peak field on conductor [T]
+r_coil: 1.85         # Effective winding bore radius [m] (calibration parameter)
+
+# Radial build geometry [m]
+R0: 0.0          # Not used for cylinder
+plasma_t: 1.5        # Plasma radius
+elon: 1.0            # Not used for cylinder (circular cross-section)
+chamber_length: 20.0 # Chamber length
+blanket_t: 0.60      # Blanket thickness
+ht_shield_t: 0.20    # High-temperature shield
+structure_t: 0.15    # Primary structure
+vessel_t: 0.10       # Vacuum vessel
+
+# Construction
+construction_time_yr: 5.0  # Years (simpler geometry)
+
+# Impurity model
+wall_material: W       # Wall material: W, C, Be, Mo, SiC, Li
+T_edge: 0.2            # Edge ion temperature at wall [keV] (200 eV, open field lines)
+tau_ratio: 3.0         # Impurity confinement time / energy confinement time
+seeded_impurities: {}  # Deliberate impurities, e.g. {Ar: 0.002}
+R_w: 0.4               # Wall reflectivity for synchrotron (lower — open ends)
+
+# Plasma parameters for radiation calculation
+n_e: 5.0e+19        # Electron density [m^-3]
+T_e: 20.0           # Electron temperature [keV]
+Z_eff: 1.2          # Effective charge
+plasma_volume: 200.0 # Plasma volume [m^3]
+B: 3.0              # Central magnetic field [T]
+
+# Fuel burn fraction defaults (physics.py ash_neutron_split)
+dd_f_T: 0.969
+dd_f_He3: 0.689
+dhe3_dd_frac: 0.07
+dhe3_f_T: 0.97
+pb11_f_alpha_n: 0.0
+pb11_f_p_n: 0.0

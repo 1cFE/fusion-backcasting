@@ -7,7 +7,7 @@ dependencies = [
     "fastapi>=0.109.0",
     "pydantic>=2.5.0",
     "numpy>=1.26.0",
-    "costingfe @ git+https://github.com/1cFE/1costingfe.git@0eb38f4",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,73 @@
+# Default engineering parameters for MFE tokamak
+
+p_input: 50.0       # Heating power [MW]
+
+# Heating mix for CAS22 costing (must sum to p_input)
+p_nbi: 50.0         # NBI heating [MW] (primary heating for tokamak)
+p_ecrh: 0.0         # ECRH heating [MW]
+p_icrf: 0.0         # ICRF heating [MW]
+p_lhcd: 0.0         # LHCD heating [MW]
+
+mn: 1.1             # Neutron energy multiplier
+eta_p: 0.5          # Pumping efficiency
+eta_pin: 0.5        # Heating system wall-plug efficiency
+eta_de: 0.85        # DEC efficiency
+f_sub: 0.03         # Subsystem power fraction
+f_dec: 0.0          # DEC fraction (0 = no DEC)
+p_coils: 2.0        # Coil power [MW]
+p_cool: 13.7        # Cooling power [MW]
+p_pump: 1.0         # Pumping power [MW]
+p_trit: 10.0        # Tritium processing power [MW]
+p_house: 4.0        # Housekeeping power [MW]
+p_cryo: 0.5         # Cryogenic power [MW]
+
+# Coil parameters
+b_max: 12.0          # Peak field on conductor [T]
+r_coil: 1.85         # Effective winding bore radius [m] (pyFECONs calibration)
+
+# Radial build geometry [m] — CATF spherical tokamak reference
+R0: 3.0          # Major radius R0
+plasma_t: 1.1        # Minor radius a
+elon: 3.0            # Elongation kappa
+blanket_t: 0.80      # Blanket thickness
+ht_shield_t: 0.20    # High-temperature shield
+structure_t: 0.20    # Primary structure
+vessel_t: 0.20       # Vacuum vessel
+
+# Construction
+construction_time_yr: 6.0  # Years
+
+# Plasma parameters for radiation calculation
+n_e: 1.0e+20        # Electron density [m^-3]
+T_e: 15.0           # Electron temperature [keV]
+Z_eff: 1.5          # Effective charge
+plasma_volume: 500.0 # Plasma volume [m^3]
+B: 5.0              # Magnetic field [T]
+
+# Impurity model
+wall_material: W       # Wall material: W, C, Be, Mo, SiC, Li
+T_edge: 0.05           # Edge ion temperature at wall [keV] (50 eV, detached divertor)
+tau_ratio: 3.0         # Impurity confinement time / energy confinement time
+seeded_impurities: {}  # Deliberate impurities, e.g. {Ar: 0.002}
+R_w: 0.6               # Wall reflectivity for synchrotron (metallic walls 0.6-0.8)
+
+# Disruption model (active when use_0d_model=true)
+disruption_rate_base: 0.1   # Baseline disruptions/FPY far from limits
+disruption_steepness: 15.0  # Exponential steepness parameter
+disruption_damage: 0.02     # Fraction of component life per disruption
+disruption_downtime: 72.0   # Hours of downtime per disruption
+
+# 0D plasma model (tokamak only)
+use_0d_model: false  # Enable 0D plasma physics model
+q95: 3.5             # Safety factor at 95% flux surface
+f_GW: 0.85           # Greenwald density fraction
+M_ion: 2.5           # Average ion mass [AMU]
+lambda_q: 0.002      # SOL power width at midplane [m]
+
+# Fuel burn fraction defaults (physics.py ash_neutron_split)
+dd_f_T: 0.969
+dd_f_He3: 0.689
+dhe3_dd_frac: 0.07
+dhe3_f_T: 0.97
+pb11_f_alpha_n: 0.0
+pb11_f_p_n: 0.0
