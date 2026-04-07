@@ -35,6 +35,10 @@ def list_concepts():
             "mag_target": "Mag. Target",
             "plasma_jet": "Plasma Jet",
             "pulsed_frc": "Pulsed FRC",
+            "maglif": "MagLIF",
+            "theta_pinch": "Theta Pinch",
+            "dense_plasma_focus": "Dense Plasma Focus",
+            "staged_zpinch": "Staged Z-Pinch",
         },
         "fuel_labels": {
             "dt": "D-T",
