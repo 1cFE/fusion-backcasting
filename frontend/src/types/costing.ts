@@ -2,7 +2,8 @@ export type ConfinementConcept =
   | 'tokamak' | 'stellarator' | 'mirror'
   | 'laser_ife' | 'zpinch' | 'heavy_ion'
   | 'mag_target' | 'plasma_jet' | 'pulsed_frc'
-  | 'maglif' | 'theta_pinch' | 'dense_plasma_focus' | 'staged_zpinch';
+  | 'maglif' | 'theta_pinch' | 'dense_plasma_focus' | 'staged_zpinch'
+  | 'orbitron' | 'polywell';
 
 export type FuelType = 'dt' | 'dd' | 'dhe3' | 'pb11';
 
@@ -17,6 +18,7 @@ export const CONCEPT_TO_FAMILY: Record<ConfinementConcept, ConfinementFamily> = 
   laser_ife: 'pulsed', zpinch: 'pulsed', heavy_ion: 'pulsed',
   mag_target: 'pulsed', plasma_jet: 'pulsed', pulsed_frc: 'pulsed',
   maglif: 'pulsed', theta_pinch: 'pulsed', dense_plasma_focus: 'pulsed', staged_zpinch: 'pulsed',
+  orbitron: 'steady_state', polywell: 'steady_state',
 };
 
 export interface PowerTable {

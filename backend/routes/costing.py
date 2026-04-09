@@ -39,6 +39,8 @@ def list_concepts():
             "theta_pinch": "Theta Pinch",
             "dense_plasma_focus": "Dense Plasma Focus",
             "staged_zpinch": "Staged Z-Pinch",
+            "orbitron": "Orbitron",
+            "polywell": "Polywell",
         },
         "fuel_labels": {
             "dt": "D-T",
