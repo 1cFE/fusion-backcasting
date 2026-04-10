@@ -53,6 +53,13 @@ class CostingConstants:
     heating_icrf_per_mw: float = 4.1494  # Ion Cyclotron Resonance Frequency
     heating_ecrh_per_mw: float = 5.0  # Electron Cyclotron Resonance Heating (gyrotrons)
     heating_lhcd_per_mw: float = 4.0  # Lower Hybrid Current Drive (klystrons)
+    # 220104: Pulsed driver capital — per-MW linear costs (M$/MW, 2023$)
+    # Used when family == PULSED; concept-dispatched in cas22.py C220104
+    driver_laser_per_mw: float = 8.0  # Diode-pumped solid-state laser (NOAK)
+    driver_heavy_ion_per_mw: float = 12.0  # RF linac + storage rings
+    driver_mag_target_per_mw: float = 3.0  # Pneumatic pistons, liquid metal loop
+    driver_plasma_jet_per_mw: float = 4.0  # Plasma gun array
+    driver_maglif_per_mw: float = 6.0  # Laser preheat (Z-pinch electrical in C220107)
     # 220105: Primary Structure — volume-based (M$/m³)
     structure_unit_cost: float = 0.15  # Calibrated at ~208 m³
     # 220106: Vacuum System — volume-based (M$/m³)
@@ -97,6 +104,13 @@ class CostingConstants:
     f_rad_dd: float = 0.08
     f_rad_dhe3: float = 0.05
     f_rad_pb11: float = 0.15  # High Z^2 bremsstrahlung
+
+    # Steady-state radiation fraction (fraction of P_fus radiated as bremsstrahlung)
+    # Used to override compute_p_rad for fuels where bremsstrahlung dominates.
+    # p-B11: 87% with alpha channeling (Ochs et al. 2022, PhysRevE 106 055215)
+    # D-He3: 35% — needs further investigation
+    f_rad_fus_pb11: float = 0.87
+    f_rad_fus_dhe3: float = 0.35
 
     # PdV work fraction — fraction of charged-particle energy doing work
     # against confining field. For adiabatic expansion:
@@ -296,6 +310,18 @@ class CostingConstants:
             Fuel.DHE3: self.f_rad_dhe3,
             Fuel.PB11: self.f_rad_pb11,
         }.get(fuel, self.f_rad_dt)
+
+    def f_rad_fus(self, fuel):
+        """Radiation fraction of P_fus for steady-state concepts.
+
+        Returns None for fuels where compute_p_rad should be used instead.
+        """
+        from costingfe.types import Fuel
+
+        return {
+            Fuel.PB11: self.f_rad_fus_pb11,
+            Fuel.DHE3: self.f_rad_fus_dhe3,
+        }.get(fuel)
 
     def spare_parts_frac(self, fuel):
         """Initial spare parts fraction of CAS22-28 for a given fuel type."""

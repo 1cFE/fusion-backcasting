@@ -29,7 +29,9 @@ from costingfe.types import (
 # Concept-dependent coil defaults (from pyFECONs cas220103_coils.py)
 # markup: manufacturing complexity multiplier over raw conductor cost
 # path_factor: extra coil path length for 3D geometries (stellarator)
+# None → no confinement magnets (IFE drivers, magnet-free pulsed concepts)
 _COIL_DEFAULTS = {
+    # MFE / electrostatic — full confinement magnets
     ConfinementConcept.TOKAMAK: {"markup": 8.0, "path_factor": 1.0},
     ConfinementConcept.STELLARATOR: {"markup": 12.0, "path_factor": 2.0},
     ConfinementConcept.MIRROR: {"markup": 2.5, "path_factor": 1.0},
@@ -37,6 +39,16 @@ _COIL_DEFAULTS = {
     ConfinementConcept.THETA_PINCH: {"markup": 1.5, "path_factor": 1.0},
     ConfinementConcept.ORBITRON: {"markup": 1.5, "path_factor": 1.0},
     ConfinementConcept.POLYWELL: {"markup": 2.0, "path_factor": 1.0},
+    # MIF — guide-field solenoids (simpler, smaller than full confinement)
+    ConfinementConcept.MAG_TARGET: {"markup": 1.5, "path_factor": 1.0},
+    ConfinementConcept.PLASMA_JET: {"markup": 1.5, "path_factor": 1.0},
+    ConfinementConcept.MAGLIF: {"markup": 2.0, "path_factor": 1.0},
+    # IFE / magnet-free pulsed — no confinement magnets
+    ConfinementConcept.LASER_IFE: None,
+    ConfinementConcept.ZPINCH: None,
+    ConfinementConcept.HEAVY_ION: None,
+    ConfinementConcept.DENSE_PLASMA_FOCUS: None,
+    ConfinementConcept.STAGED_ZPINCH: None,
 }
 
 _MU0 = 4 * math.pi * 1e-7  # Vacuum permeability (T·m/A)
@@ -85,6 +97,7 @@ def cas22_reactor_plant_equipment(
     p_icrf: float,
     p_ecrh: float,
     p_lhcd: float,
+    p_driver: float,
     f_dec: float,
     p_dee: float,
     # Pulsed DEC parameters
@@ -145,25 +158,42 @@ def cas22_reactor_plant_equipment(
     # Markup captures winding, insulation, quench protection, cryostat, testing
     # See docs/account_justification/CAS22_reactor_components.md
     # -----------------------------------------------------------------------
-    defaults = _COIL_DEFAULTS.get(concept, _COIL_DEFAULTS[ConfinementConcept.TOKAMAK])
-    coil_markup = defaults["markup"]
-    path_factor = defaults["path_factor"]
-    G = _compute_geometry_factor(concept, path_factor)
-    total_kAm = G * b_max * r_coil**2 / (_MU0 * 1000)
-    conductor_cost = total_kAm * coil_material.default_cost_per_kAm / 1e6
-    c220103 = conductor_cost * coil_markup
+    defaults = _COIL_DEFAULTS.get(concept)
+    if defaults is None:
+        # No confinement magnets (IFE drivers, magnet-free pulsed)
+        c220103 = 0.0
+    else:
+        coil_markup = defaults["markup"]
+        path_factor = defaults["path_factor"]
+        G = _compute_geometry_factor(concept, path_factor)
+        total_kAm = G * b_max * r_coil**2 / (_MU0 * 1000)
+        conductor_cost = total_kAm * coil_material.default_cost_per_kAm / 1e6
+        c220103 = conductor_cost * coil_markup
 
     # -----------------------------------------------------------------------
-    # 220104: Supplementary Heating — vendor-purchased turnkey systems
-    # Per-MW linear costs calibrated to ITER procurement (FOAK-to-NOAK adjusted)
+    # 220104: Supplementary Heating (MFE) or Primary Driver (pulsed)
+    # MFE: per-MW linear costs calibrated to ITER procurement (FOAK→NOAK)
+    # Pulsed: concept-specific driver capital (laser, accelerator, mechanical)
+    # Concepts whose driver is purely electrical use C220107 instead.
     # See docs/account_justification/CAS22_reactor_components.md
     # -----------------------------------------------------------------------
-    c220104 = (
-        cc.heating_nbi_per_mw * p_nbi
-        + cc.heating_icrf_per_mw * p_icrf
-        + cc.heating_ecrh_per_mw * p_ecrh
-        + cc.heating_lhcd_per_mw * p_lhcd
-    )
+    if family == ConfinementFamily.STEADY_STATE:
+        c220104 = (
+            cc.heating_nbi_per_mw * p_nbi
+            + cc.heating_icrf_per_mw * p_icrf
+            + cc.heating_ecrh_per_mw * p_ecrh
+            + cc.heating_lhcd_per_mw * p_lhcd
+        )
+    else:
+        _DRIVER_COST_PER_MW = {
+            ConfinementConcept.LASER_IFE: cc.driver_laser_per_mw,
+            ConfinementConcept.HEAVY_ION: cc.driver_heavy_ion_per_mw,
+            ConfinementConcept.MAG_TARGET: cc.driver_mag_target_per_mw,
+            ConfinementConcept.PLASMA_JET: cc.driver_plasma_jet_per_mw,
+            ConfinementConcept.MAGLIF: cc.driver_maglif_per_mw,
+        }
+        driver_per_mw = _DRIVER_COST_PER_MW.get(concept, 0.0)
+        c220104 = driver_per_mw * p_driver
 
     # -----------------------------------------------------------------------
     # 220105: Primary Structure — gravity supports, thermal shields,
@@ -181,12 +211,12 @@ def cas22_reactor_plant_equipment(
 
     # -----------------------------------------------------------------------
     # 220107: Power Supplies — vendor-purchased (ABB, GE, Siemens)
-    # High-current DC for magnets, pulsed power, switchgear.
-    # Inductive DEC: cap bank + switches + charging + buswork on $/J basis.
+    # Steady-state: high-current DC for superconducting magnets, switchgear.
+    # Pulsed: cap bank + switches + charging + buswork on $/J_stored basis.
     # See docs/account_justification/CAS22_plant_systems.md
     # -----------------------------------------------------------------------
-    if pulsed_conversion == PulsedConversion.INDUCTIVE_DEC:
-        # $/J_stored basis: cap bank + switches + charging + buswork
+    if family == ConfinementFamily.PULSED:
+        # $/J_stored basis: pulsed driver (cap bank, laser, accelerator)
         c220107 = cc.c_cap_allin_per_joule * e_stored_mj  # $/J * MJ = M$
     else:
         c220107 = cc.power_supplies_base * (p_et / 1000.0) ** 0.7
