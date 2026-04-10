@@ -199,7 +199,6 @@ class CostModel:
             )
             common_kw = dict(
                 fuel=self.fuel,
-                e_driver_mj=params["e_driver_mj"],
                 f_rep=params["f_rep"],
                 mn=params["mn"],
                 eta_th=params["eta_th"],
@@ -220,13 +219,12 @@ class CostModel:
                     eta_dec=params["eta_dec"],
                     f_pdv=params.get("f_pdv", self.cc.f_pdv),
                 )
-                # DEC inverse: solve for e_driver_mj from P_net and Q_sci
-                q_sci = params.get("q_sci", 5.0)
-                inv_kw = {k: v for k, v in common_kw.items() if k != "e_driver_mj"}
+                # DEC inverse: solve for e_driver_mj from P_net and Q_eng
+                q_eng = params.get("q_eng", 5.0)
                 p_fus, e_driver_solved = pulsed_dec_inverse(
                     p_net_target=p_net_per_mod,
-                    q_sci=q_sci,
-                    **inv_kw,
+                    q_eng=q_eng,
+                    **common_kw,
                     **dec_kw,
                 )
                 # Use solved e_driver_mj for forward pass
@@ -237,10 +235,13 @@ class CostModel:
                     **dec_kw,
                 )
             else:
-                p_fus = pulsed_thermal_inverse(
+                q_eng = params.get("q_eng", 5.0)
+                p_fus, e_driver_solved = pulsed_thermal_inverse(
                     p_net_target=p_net_per_mod,
+                    q_eng=q_eng,
                     **common_kw,
                 )
+                common_kw["e_driver_mj"] = e_driver_solved
                 pt = pulsed_thermal_forward(
                     p_fus=p_fus,
                     **common_kw,
@@ -535,7 +536,7 @@ class CostModel:
 
         # Pulsed driver power (MW) for C220104 driver costing
         if self.family == ConfinementFamily.PULSED:
-            p_driver = params["e_driver_mj"] * params["f_rep"]
+            p_driver = pt.e_driver_mj * params["f_rep"]
         else:
             p_driver = 0.0
 
@@ -815,7 +816,7 @@ class CostModel:
                 "disruption_downtime",
             ],
             ConfinementFamily.PULSED: [
-                "e_driver_mj",
+                "q_eng",
                 "f_rep",
                 "eta_pin",
                 "f_rad",
@@ -823,7 +824,6 @@ class CostModel:
                 "p_coils",
                 "eta_dec",
                 "f_pdv",
-                "q_sci",
             ],
         }
         return common + family_specific.get(self.family, [])

@@ -35,7 +35,7 @@ const PARASITIC_STEADY_STATE: ParamDef[] = [
 ];
 
 const PARASITIC_PULSED: ParamDef[] = [
-  { key: 'e_driver_mj', label: 'Driver Energy/Pulse', min: 0.5, max: 200, step: 0.5, format: (v) => `${v.toFixed(1)} MJ` },
+  { key: 'q_eng', label: 'Engineering Q', min: 1.5, max: 10, step: 0.1, format: (v) => `${v.toFixed(1)}` },
   { key: 'f_rep', label: 'Rep Rate', min: 0.1, max: 20, step: 0.1, format: (v) => `${v.toFixed(1)} Hz` },
   { key: 'eta_pin', label: 'Driver Efficiency', min: 0.05, max: 0.98, step: 0.01, format: formatPct },
   { key: 'f_rad', label: 'Radiation Fraction', min: 0.01, max: 0.30, step: 0.01, format: formatPct },
